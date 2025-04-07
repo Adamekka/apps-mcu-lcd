@@ -66,24 +66,38 @@ Line::Line(Point2D pos1, Point2D pos2, RGB888 fg, RGB888 bg)
     : GraphElement(fg, bg), pos1(pos1), pos2(pos2) {}
 
 auto Line::draw() -> void {
-    const auto x1 = static_cast<float>(this->pos1.x);
-    const auto x2 = static_cast<float>(this->pos2.x);
-    const auto y1 = static_cast<float>(this->pos1.y);
-    const auto y2 = static_cast<float>(this->pos2.y);
+    int32_t x1 = this->pos1.x;
+    int32_t x2 = this->pos2.x;
+    int32_t y1 = this->pos1.y;
+    int32_t y2 = this->pos2.y;
 
-    const float dx = x2 - x1;
-    const float dy = y2 - y1;
+    const bool steep = std::abs(y2 - y1) > std::abs(x2 - x1);
+    if (steep) {
+        std::swap(x1, y1);
+        std::swap(x2, y2);
+    }
 
-    const float steps = std::max(std::abs(dx), std::abs(dy));
+    if (x1 > x2) {
+        std::swap(x1, x2);
+        std::swap(y1, y2);
+    }
 
-    const float x_inc = dx / steps;
-    const float y_inc = dy / steps;
+    const int32_t dx = x2 - x1;
+    const int32_t dy = std::abs(y2 - y1);
+    int32_t error = dx / 2;
+    const int32_t ystep = (y1 < y2) ? 1 : -1;
+    int32_t y = y1;
 
-    float x = x1;
-    float y = y1;
-    for (size_t i = 0; i <= static_cast<size_t>(steps); i++) {
-        this->draw_pixel(static_cast<int32_t>(x), static_cast<int32_t>(y));
-        x += x_inc;
-        y += y_inc;
+    for (int32_t x = x1; x <= x2; x++) {
+        if (steep)
+            this->draw_pixel(y, x);
+        else
+            this->draw_pixel(x, y);
+
+        error -= dy;
+        if (error < 0) {
+            y += ystep;
+            error += dx;
+        }
     }
 }
