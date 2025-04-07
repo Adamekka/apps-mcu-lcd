@@ -53,8 +53,9 @@ class Circle : public GraphElement {
   public:
     Point2D center;
     int32_t radius;
+    bool fill;
 
-    Circle(Point2D center, int32_t radius, RGB888 fg, RGB888 bg);
+    Circle(Point2D center, int32_t radius, RGB888 fg, RGB888 bg, bool fill);
 
     auto draw() -> void final;
 };

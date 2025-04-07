@@ -7,7 +7,8 @@ auto main() -> int32_t {
         Point2D{.x = LCD_WIDTH / 2, .y = LCD_HEIGHT / 2},
         50,
         RGB888{.r = 255, .g = 0, .b = 0},
-        RGB888{.r = 0, .g = 0, .b = 0}
+        RGB888{.r = 0, .g = 0, .b = 0},
+        false
     );
     circle.draw();
 

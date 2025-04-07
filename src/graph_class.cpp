@@ -31,18 +31,25 @@ Pixel::Pixel(Point2D pos, RGB888 fg_color, RGB888 bg_color)
 
 auto Pixel::draw() -> void { this->draw_pixel(this->pos.x, this->pos.y); }
 
-Circle::Circle(Point2D center, int32_t radius, RGB888 fg, RGB888 bg)
-    : GraphElement(fg, bg), center(center), radius(radius) {}
+Circle::Circle(Point2D center, int32_t radius, RGB888 fg, RGB888 bg, bool fill)
+    : GraphElement(fg, bg), center(center), radius(radius), fill(fill) {}
 
 auto Circle::draw() -> void {
     const int32_t x_center = this->center.x;
     const int32_t y_center = this->center.y;
     const int32_t radius = this->radius;
 
-    for (int32_t x = -radius; x <= radius; x++) {
-        for (int32_t y = -radius; y <= radius; y++)
-            if (x * x + y * y <= radius * radius)
-                this->draw_pixel(x_center + x, y_center + y);
+    if (this->fill) {
+        for (int32_t x = -radius; x <= radius; x++)
+            for (int32_t y = -radius; y <= radius; y++)
+                if (x * x + y * y <= radius * radius)
+                    this->draw_pixel(x_center + x, y_center + y);
+    } else {
+        for (int32_t x = -radius; x <= radius; x++)
+            for (int32_t y = -radius; y <= radius; y++)
+                if (x * x + y * y <= radius * radius
+                    && x * x + y * y >= (radius - 1) * (radius - 1))
+                    this->draw_pixel(x_center + x, y_center + y);
     }
 }
 
