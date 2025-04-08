@@ -1,5 +1,6 @@
 #include "graph_class.hpp"
-#include "font8x8.h"
+// #include "font8x8.h"
+#include "../fonts/font32x53_msb.h"
 #include "lcd_lib.hpp"
 
 auto RGB888::to_rgb565() const -> RGB565 {
@@ -56,15 +57,26 @@ auto Circle::draw() -> void {
 Character::Character(Point2D pos, char character, RGB888 fg, RGB888 bg)
     : GraphElement(fg, bg), pos(pos), character(character) {}
 
-auto Character::draw() -> void {
-    const auto font_pixels = FONT8x8[static_cast<uint8_t>(this->character)];
+#define FONT_WIDTH 32
+#define FONT_HEIGHT 53
+#define FONT_WIDTH_TYPE uint32_t
+#define MSB true
 
-    for (int32_t i = 0; i < static_cast<int32_t>(font_pixels.size()); i++) {
-        const uint8_t row = font_pixels[i];
-        for (int8_t j = 0; j < 8; j++) {
-            const bool is_set = static_cast<bool>(row >> (7 - j) & 0x01);
+auto Character::draw() -> void {
+    const auto* const font_pixels = font[static_cast<FONT_WIDTH_TYPE>(
+        static_cast<unsigned char>(this->character)
+    )];
+
+    for (int32_t i = 0; i < FONT_HEIGHT; i++) {
+        const auto row = font_pixels[i];
+        for (int32_t j = 0; j < FONT_WIDTH; j++) {
+            bool is_set = MSB ? static_cast<bool>(
+                                    row >> (FONT_WIDTH - 1 - j) & 0x00000001
+                                )
+                              : static_cast<bool>(row >> j & 0x00000001);
+
             if (is_set)
-                this->draw_pixel(this->pos.x + 8 - j, this->pos.y + i);
+                this->draw_pixel(this->pos.x + j, this->pos.y + i);
         }
     }
 }
